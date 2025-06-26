@@ -5,7 +5,7 @@ import copy
 
 st.set_page_config(
     page_title="Calculadora Simplex",
-    layout="wide"
+    #layout="wide"
 )
 
 st.title("🔷 Calculadora Simplex")
@@ -19,14 +19,14 @@ if "previous_input" not in st.session_state:
 def validate_decimal(value):
     return round(value, 2) if value is not None else value
 
-# Entrada de dados
+#Entrada de dados
 num_cols = st.columns(2)
 with num_cols[0]:
     num_variaveis = st.number_input("Número de variáveis", min_value=1, step=1, key="num_variaveis")
 with num_cols[1]:
     num_restricoes = st.number_input("Número de restrições", min_value=1, step=1, key="num_restricoes")
 
-# Coeficientes da F.O.
+#Coeficientes da F.O.
 st.subheader("Coeficientes da Função Objetivo (FO)")
 fo_data = []
 for i in range(int(num_variaveis)):
@@ -35,7 +35,7 @@ for i in range(int(num_variaveis)):
 
 st.table(pd.DataFrame(fo_data, columns=["Variável", "Coeficiente"]))
 
-# Coeficientes das restrições
+#Coeficientes das restrições
 st.subheader("Coeficientes das Restrições")
 rest_columns = [f"X{j+1}" for j in range(int(num_variaveis))] + ["Sinal", "Limite"]
 restricoes = []
@@ -50,7 +50,7 @@ for i in range(int(num_restricoes)):
     row.extend([sinal, limite])
     restricoes.append(row)
 
-# Exibição
+#Exibição
 st.subheader("Função Objetivo")
 fo_equacao = " + ".join([f"{coef:.4f}·{var}" for var, coef in fo_data])
 st.write(f"Max Z = {fo_equacao}")
@@ -59,7 +59,7 @@ st.subheader("Restrições")
 df_restr = pd.DataFrame(restricoes, columns=rest_columns)
 st.table(df_restr)
 
-# Solução atual
+#Solução atual
 try:
     result = pLinear(int(num_variaveis), [coef for _, coef in fo_data], restricoes)
     st.session_state.previous_result = result
@@ -80,7 +80,7 @@ try:
 except Exception as e:
     st.error(f"Erro ao calcular solução inicial: {e}")
 
-# Alterações
+#Alterações
 st.subheader("Propor Alterações nas Restrições")
 alteracoes = []
 for i in range(len(restricoes)):
@@ -88,7 +88,7 @@ for i in range(len(restricoes)):
     alteracoes.append(alter)
     restricoes[i][-1] += alter
 
-# Botão de verificação de viabilidade
+#Botão de verificação de viabilidade
 def verificar_viabilidade_avancada():
     try:
         novo_resultado = pLinear(int(num_variaveis), [coef for _, coef in fo_data], restricoes)
@@ -96,10 +96,10 @@ def verificar_viabilidade_avancada():
         psombra_novo = novo_resultado[2]
         
         if all(abs(psombra_novo[i] - psombra_antigo[i]) < 1e-4 for i in range(len(psombra_novo))):
-            st.success("As alterações propostas são viáveis. Base ótima mantida.")
+            st.success("As alterações propostas são viáveis.")
             st.write(f"Novo Lucro Ótimo (Z): {novo_resultado[1]:.4f}")
         else:
-            st.error("As alterações propostas NÃO são viáveis. Os preços sombra foram alterados.")
+            st.error("As alterações propostas NÃO são viáveis.")
 
     except Exception as e:
         st.error(f"Erro ao verificar viabilidade: {e}")
